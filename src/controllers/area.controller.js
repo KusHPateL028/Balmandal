@@ -1,4 +1,5 @@
 import { Area } from "../models/area.model.js";
+import { Pincode } from "../models/pincode.model.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import checkCondition from "../utils/checkCondition.js";
@@ -19,9 +20,37 @@ const createArea = asyncHandler(async (req, res) => {
 
   checkCondition(anythingEmpty, 400, `${anythingEmpty} is required`);
 
-  const existingArea = await Area.findOne({ $or: [{ pincode }, { name }] });
+  const existingArea = await Area.findOne({pincode, name});
 
   checkCondition(existingArea, 409, "Area already exists");
+
+  const validatePincode = await Pincode.findOne({ pincode });
+
+  checkCondition(!validatePincode, 400, "Enter valid Pincode");
+
+  const cleanedInputName = name.replace(/\s+/g, "").toLowerCase();
+
+  const matchedPincodeWithName = await Pincode.aggregate([
+    {
+      $addFields: {
+        cleanName: {
+          $replaceAll: {
+            input: { $toLower: "$officename" },
+            find: " ",
+            replacement: "",
+          },
+        },
+      },
+    },
+    {
+      $match: {
+        cleanName: { $regex: cleanedInputName, $options: "i" },
+        pincode: pincode,
+      },
+    },
+  ]);
+
+  checkCondition(matchedPincodeWithName.length === 0, 400, "Enter valid Area Name and Pincode");
 
   const area = await Area.create({ name, pincode });
 
