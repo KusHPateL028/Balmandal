@@ -20,7 +20,7 @@ const createArea = asyncHandler(async (req, res) => {
 
   checkCondition(anythingEmpty, 400, `${anythingEmpty} is required`);
 
-  const existingArea = await Area.findOne({pincode, name});
+  const existingArea = await Area.findOne({ pincode, name });
 
   checkCondition(existingArea, 409, "Area already exists");
 
@@ -50,7 +50,11 @@ const createArea = asyncHandler(async (req, res) => {
     },
   ]);
 
-  checkCondition(matchedPincodeWithName.length === 0, 400, "Enter valid Area Name and Pincode");
+  checkCondition(
+    matchedPincodeWithName.length === 0,
+    400,
+    "Enter valid Area Name and Pincode"
+  );
 
   const area = await Area.create({ name, pincode });
 
@@ -88,17 +92,22 @@ const updateArea = asyncHandler(async (req, res) => {
   checkCondition(!id, 400, "Area ID is required");
   checkCondition(!(name || pincode), 400, "Name or Pincode is required");
 
+  const selectedArea = await Area.findById(id);
+
+  console.log("Selected Area:", selectedArea);
+
   const existingArea = await Area.findOne({
     _id: { $ne: id },
-    $or: [...(name ? [{ name }] : []), ...(pincode ? [{ pincode }] : [])],
+    ...(name ? { name } : { name: selectedArea.name }),
+    ...(pincode ? { pincode } : { pincode: selectedArea.pincode }),
   });
+
+  console.log("Existing Area:", existingArea);
 
   checkCondition(
     existingArea,
     409,
-    existingArea?.name === name
-      ? "Area with this name already exists"
-      : "Area with this pincode already exists"
+    "Area with this name and pincode already exists"
   );
 
   const updateData = {};
