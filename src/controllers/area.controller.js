@@ -3,15 +3,7 @@ import { Pincode } from "../models/pincode.model.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import checkCondition from "../utils/checkCondition.js";
-
-const isAnyEmpty = (obj) => {
-  for (const key in obj) {
-    if (!obj[key] || (typeof obj[key] == "string" && obj[key].trim() === "")) {
-      return key;
-    }
-  }
-  return null;
-};
+import { isAnyEmpty } from "../utils/exportFunction.js";
 
 const validatePincode = async (name, pincode) => {
   const validatePincode = await Pincode.findOne({ pincode });
@@ -108,11 +100,7 @@ const updateArea = asyncHandler(async (req, res) => {
     ...(name ? { name } : { name: selectedArea.name }),
   });
 
-  checkCondition(
-    existingArea,
-    409,
-    "Area with this name already exists"
-  );
+  checkCondition(existingArea, 409, "Area with this name already exists");
 
   const updateData = {};
   if (name) updateData.name = name;
@@ -124,7 +112,7 @@ const updateArea = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, area, "Role updated successfully"));
+    .json(new ApiResponse(200, area, "Area updated successfully"));
 });
 
 const getArea = asyncHandler(async (req, res) => {
@@ -132,7 +120,7 @@ const getArea = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, area, "Roles fetched successfully"));
+    .json(new ApiResponse(200, area, "Areas fetched successfully"));
 });
 
 export { createArea, deleteArea, updateArea, getArea };
