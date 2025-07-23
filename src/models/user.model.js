@@ -11,6 +11,7 @@ const userSchema = new Schema(
     email: {
       type: String,
       required: true,
+      unique: true,
     },
     karykarID: {
       type: Number,
@@ -18,7 +19,6 @@ const userSchema = new Schema(
     },
     avatar: {
       type: String,
-      required: true,
     },
     username: {
       type: String,
@@ -28,18 +28,21 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    sabha: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Sabha",
-      },
-    ],
+    roleId: {
+      type: Schema.Types.ObjectId,
+      ref: "Role",
+    },
     refreshToken: {
       type: String,
     },
   },
   { timestamps: true }
 );
+
+const counterSchema = new Schema({
+  _id: { type: String, required: true },
+  seq: { type: Number, default: 0 }
+});
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
@@ -75,3 +78,4 @@ userSchema.methods.generateRefreshToken = async function () {
 };
 
 export const User = mongoose.model("User", userSchema);
+export const Counter = mongoose.model("Counter", counterSchema);
