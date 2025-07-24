@@ -10,10 +10,7 @@ const sendMail = async (to, subject, text, html = null) => {
   });
 
   const mailOptions = {
-    from: {
-      name: "swapna@drcsystems.com",
-      address: "no-reply@gmail.com",
-    },
+    from: { name: "kushpatel0028@gmail.com" },
     to,
     subject,
     text,
